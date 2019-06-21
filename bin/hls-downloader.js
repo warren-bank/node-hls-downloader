@@ -225,17 +225,17 @@ const get_media_streams = function(stream, manifest, base_url, media_type){
       resolve(streams)
     }
     else if ((media_type === "audio") && argv_vals["--filter-audio"]) {
-      streams = streams.filter(stream => (stream.name.toLowerCase().indexOf(argv_vals["--filter-audio"]) >= 0))
-
-      resolve(streams)
+      resolve(
+        streams.filter(stream => (stream.name.toLowerCase().indexOf(argv_vals["--filter-audio"]) >= 0))
+      )
     }
     else if ((media_type === "subtitles") && argv_vals["--all-subtitles"]) {
       resolve(streams)
     }
     else if ((media_type === "subtitles") && argv_vals["--filter-subtitles"]) {
-      streams = streams.filter(stream => (stream.name.toLowerCase().indexOf(argv_vals["--filter-subtitles"]) >= 0))
-
-      resolve(streams)
+      resolve(
+        streams.filter(stream => (stream.name.toLowerCase().indexOf(argv_vals["--filter-subtitles"]) >= 0))
+      )
     }
     else {
       resolve(
