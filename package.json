@@ -1,6 +1,6 @@
 {
   "name": "@warren-bank/node-hls-downloader",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "",
   "description": "Command-line utility for downloading an offline copy of an HLS video stream.",
   "license": "GPL-2.0",

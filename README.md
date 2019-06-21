@@ -31,8 +31,9 @@ npm install --global @warren-bank/node-hls-downloader
 
 #### Limitations:
 
-* only works with static playlists, which include a complete list of all video/audio/subtitle chunks
-* only supports a single encryption key per playlist
+* only works with static playlists, which include a complete list of all:
+  * video/audio/subtitle chunks
+  * encryption keys
 
 #### Usage:
 

@@ -277,9 +277,10 @@ const process_stream_manifest_data = function(manifest_data, base_url, ...sub_di
 
   const key_pattern  = /^(#EXT-X-KEY.*?[:,]URI=")([^"]+)(".*)$/i
   const lines        = manifest_data.split(/[\r\n]+/g)
-  const data_urls    = []
   let local_manifest = []
-  let key_url
+  const data_urls    = []
+  const key_urls     = []
+  let key_url, key_name
 
   lines.forEach(line => {
     line = line.trim()
@@ -291,8 +292,10 @@ const process_stream_manifest_data = function(manifest_data, base_url, ...sub_di
     else {
       let match = key_pattern.exec(line)
       if (match !== null) {
-        key_url = resolve_relative_url(match[2], base_url)
-        local_manifest.push(match[1] + get_local_path(key_url) + match[3])
+        key_url  = resolve_relative_url(match[2], base_url)
+        key_name = `key_${key_urls.length}.dat`
+        key_urls.push({url: key_url, name: key_name})
+        local_manifest.push(match[1] + get_local_path(key_name) + match[3])
       }
       else {
         local_manifest.push(line)
@@ -321,10 +324,12 @@ const process_stream_manifest_data = function(manifest_data, base_url, ...sub_di
   })
   promises.push(promise)
 
-  if (key_url) {
+  if (key_urls.length) {
     promise = download({
-      "--url":             key_url,
-      "--output-document": path.join(output_dir, "key.dat")
+      "--input-file":       key_urls.map(obj => `${obj.url}\t${obj.name}`),
+      "--directory-prefix": output_dir,
+      "--no-clobber":       true,
+      "--max-concurrency":  argv_vals["--max-concurrency"]
     })
     promises.push(promise)
   }
