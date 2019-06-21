@@ -48,10 +48,10 @@ options:
     Download all subtitle streams in the group ID associated with the chosen video stream.
 
 "--filter-audio" <substring>
-    Download all audio streams in the group ID associated with the chosen video stream, having a name that constains this substring.
+    Download all audio streams in the group ID associated with the chosen video stream, having a name that contains this case-insensitive substring.
 
 "--filter-subtitles" <substring>
-    Download all subtitle streams in the group ID associated with the chosen video stream, having a name that constains this substring.
+    Download all subtitle streams in the group ID associated with the chosen video stream, having a name that contains this case-insensitive substring.
 
 "--mp4 <filepath>"
     Indicates that "ffmpeg" should be used to bundle the downloaded video stream into an .mp4 file container.

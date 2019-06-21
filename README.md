@@ -10,9 +10,18 @@ npm install --global @warren-bank/node-hls-downloader
 
 #### Features:
 
-* interactive cli
-  - prompts for URL of master manifest, if not given as an option
-  - prompts for video resolution based on available video streams within master manifest
+* interactive command-line interface (CLI)
+  * prompts for URL of the master manifest
+    * when not given as a CLI option
+  * prompts for video resolution
+    * when multiple video streams are available in the master manifest
+    * when not filtered by a CLI option
+  * prompts for audio stream
+    * when multiple are available in the group ID associated with the chosen video stream
+    * when not filtered by a CLI option
+  * prompts for subtitles stream
+    * when multiple are available in the group ID associated with the chosen video stream
+    * when not filtered by a CLI option
 * resulting file structure:
   ```bash
     |- video/
@@ -31,8 +40,10 @@ npm install --global @warren-bank/node-hls-downloader
 
 #### Limitations:
 
-* only works with static playlists, which include a complete list of all:
-  * video/audio/subtitle chunks
+* only works with static (ie: _not_ live stream) playlists,<br>which include a complete list of all:
+  * video segments
+  * audio segments
+  * subtitle segments
   * encryption keys
 
 #### Usage:
@@ -85,10 +96,10 @@ options:
     Download all subtitle streams in the group ID associated with the chosen video stream.
 
 "--filter-audio" <substring>
-    Download all audio streams in the group ID associated with the chosen video stream, having a name that constains this substring.
+    Download all audio streams in the group ID associated with the chosen video stream, having a name that contains this case-insensitive substring.
 
 "--filter-subtitles" <substring>
-    Download all subtitle streams in the group ID associated with the chosen video stream, having a name that constains this substring.
+    Download all subtitle streams in the group ID associated with the chosen video stream, having a name that contains this case-insensitive substring.
 
 "--mp4 <filepath>"
     Indicates that "ffmpeg" should be used to bundle the downloaded video stream into an .mp4 file container.
@@ -112,6 +123,9 @@ options:
     * v6.04.00+: Reflect.apply
   * tested in:
     * v7.9.0
+* FFmpeg
+  * only required in `PATH` when using the `--mp4` CLI option
+    * successfully tested with version: 4.1.3
 
 #### Legal:
 
