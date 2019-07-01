@@ -134,6 +134,8 @@ const get_streams = function(manifest){
   const search_pattern     = /^#EXT-X-STREAM-INF.*?[:,]BANDWIDTH=(\d+)(?:,.*)?$/i
   const resolution_pattern = /[:,]RESOLUTION=(\d+x\d+)/i
 
+  streams.filtered = 0
+
   if ((typeof manifest === 'string') && (manifest.length)) {
     let lines, i, line, match, bandwidth, url, resolution
 
@@ -149,9 +151,11 @@ const get_streams = function(manifest){
         resolution = (match == null) ? null : match[1]
 
         if (argv_vals["--min-bandwidth"] && (bandwidth < argv_vals["--min-bandwidth"])) {
+          streams.filtered++
           continue
         }
         if (argv_vals["--max-bandwidth"] && (bandwidth > argv_vals["--max-bandwidth"])) {
+          streams.filtered++
           continue
         }
 
@@ -488,9 +492,17 @@ const run_main = async function(){
   //console.log('available streams:', "\n", streams)
 
   if (streams.length === 0) {
-    // process manifest as a video stream
+    if (streams.filtered === 0) {
+      // process manifest as a video stream
 
-    await process_video_stream_data(manifest, argv_vals["--url"])
+      await process_video_stream_data(manifest, argv_vals["--url"])
+    }
+    else {
+      // all video streams in the master manifest have been filtered by min/max bandwidth restrictions
+
+      console.log('ERROR: No video streams in master manifest pass the min/max bandwidth filter criteria')
+      process.exit(0)
+    }
   }
   else if (streams.length === 1) {
     // process the only available stream
