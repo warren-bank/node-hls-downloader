@@ -148,6 +148,13 @@ const get_streams = function(manifest){
         match      = resolution_pattern.exec(line)
         resolution = (match == null) ? null : match[1]
 
+        if (argv_vals["--min-bandwidth"] && (bandwidth < argv_vals["--min-bandwidth"])) {
+          continue
+        }
+        if (argv_vals["--max-bandwidth"] && (bandwidth > argv_vals["--max-bandwidth"])) {
+          continue
+        }
+
         streams.push({
           bandwidth,
           resolution,
@@ -226,7 +233,7 @@ const get_media_streams = function(stream, manifest, base_url, media_type){
     }
     else if ((media_type === "audio") && argv_vals["--filter-audio"]) {
       resolve(
-        streams.filter(stream => (stream.name.toLowerCase().indexOf(argv_vals["--filter-audio"]) >= 0))
+        streams.filter(stream => argv_vals["--filter-audio"].test(stream.name))
       )
     }
     else if ((media_type === "subtitles") && argv_vals["--all-subtitles"]) {
@@ -234,7 +241,7 @@ const get_media_streams = function(stream, manifest, base_url, media_type){
     }
     else if ((media_type === "subtitles") && argv_vals["--filter-subtitles"]) {
       resolve(
-        streams.filter(stream => (stream.name.toLowerCase().indexOf(argv_vals["--filter-subtitles"]) >= 0))
+        streams.filter(stream => argv_vals["--filter-subtitles"].test(stream.name))
       )
     }
     else {
@@ -308,7 +315,12 @@ const process_stream_manifest_data = function(manifest_data, base_url, ...sub_di
   let output_dir = argv_vals["--directory-prefix"]
   sub_directory.forEach(child => {
     output_dir = path.join(output_dir, child)
-    fs.mkdirSync(output_dir)
+    try {
+      fs.mkdirSync(output_dir)
+    }
+    catch(err) {
+      if (err.code !== 'EEXIST') throw err
+    }
   })
 
   console.log(`starting download of ${data_urls.length} ${sub_directory[0]} data files..`)
@@ -426,7 +438,7 @@ const process_stream = async function(stream, manifest, base_url){
 
   console.clear()
 
-  {
+  if (!argv_vals["--skip-video"]) {
     url = resolve_relative_url(stream.url, base_url)
     manifest_data = await download_file(url)
     await process_video_stream_data(manifest_data, url)
@@ -435,7 +447,7 @@ const process_stream = async function(stream, manifest, base_url){
     console.log("")
   }
 
-  if (Array.isArray(audio_streams) && (audio_streams.length)) {
+  if (!argv_vals["--skip-audio"] && Array.isArray(audio_streams) && (audio_streams.length)) {
     for (const audio_stream of audio_streams) {
       if (audio_stream.url && audio_stream.name) {
         url = audio_stream.url  // already resolved
@@ -448,7 +460,7 @@ const process_stream = async function(stream, manifest, base_url){
     }
   }
 
-  if (Array.isArray(subtitle_streams) && (subtitle_streams.length)) {
+  if (!argv_vals["--skip-subtitles"] && Array.isArray(subtitle_streams) && (subtitle_streams.length)) {
     for (const subtitle_stream of subtitle_streams) {
       if (subtitle_stream.url && subtitle_stream.name) {
         url = subtitle_stream.url  // already resolved
@@ -548,8 +560,8 @@ run_main()
 .then(() => {
   return run_ffmpeg()
 })
-.catch(error => {
-  console.log(error)
+.catch(err => {
+  console.log(err)
 })
 .then(() => {
   process.exit(0)

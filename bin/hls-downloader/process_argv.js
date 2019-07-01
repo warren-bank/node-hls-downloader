@@ -4,33 +4,54 @@ const path = require('path')
 const fs   = require('fs')
 
 const argv_flags = {
-  "--help":                   {bool: true},
-  "--version":                {bool: true},
-  "--no-clobber":             {bool: true},
+  "--help":                   {bool:  true},
+  "--version":                {bool:  true},
+  "--no-clobber":             {bool:  true},
+  "--continue":               {bool:  true},
 
   "--url":                    {},
-  "--max-concurrency":        {num:  "int"},
+  "--max-concurrency":        {num:   "int"},
 
   "--directory-prefix":       {},
   "--mp4":                    {},
 
-  "--highest-quality":        {bool: true},
-  "--lowest-quality":         {bool: true},
-  "--all-audio":              {bool: true},
-  "--all-subtitles":          {bool: true},
-  "--filter-audio":           {},
-  "--filter-subtitles":       {}
+  "--skip-video":             {bool:  true},
+  "--skip-audio":             {bool:  true},
+  "--skip-subtitles":         {bool:  true},
+
+  "--min-bandwidth":          {num:   "int"},
+  "--max-bandwidth":          {num:   "int"},
+  "--highest-quality":        {bool:  true},
+  "--lowest-quality":         {bool:  true},
+
+  "--all-audio":              {bool:  true},
+  "--all-subtitles":          {bool:  true},
+  "--filter-audio":           {regex: "i"},
+  "--filter-subtitles":       {regex: "i"},
 }
 
 const argv_flag_aliases = {
   "--help":                   ["-h"],
   "--version":                ["-V"],
   "--no-clobber":             ["-nc"],
+  "--continue":               ["-c"],
   "--url":                    ["-u"],
   "--max-concurrency":        ["--mc", "--threads"],
   "--directory-prefix":       ["-P"],
+
+  "--skip-video":             ["-sv"],
+  "--skip-audio":             ["-sa"],
+  "--skip-subtitles":         ["-ss"],
+
+  "--min-bandwidth":          ["--minb"],
+  "--max-bandwidth":          ["--maxb"],
   "--highest-quality":        ["-hq"],
-  "--lowest-quality":         ["-lq"]
+  "--lowest-quality":         ["-lq"],
+
+  "--all-audio":              ["-aa"],
+  "--all-subtitles":          ["-as"],
+  "--filter-audio":           ["--fa"],
+  "--filter-subtitles":       ["--fs"]
 }
 
 const get_merged_argv_flags = function(){
@@ -95,6 +116,35 @@ if (argv_vals["--version"]) {
   process.exit(0)
 }
 
+if (argv_vals["--continue"]) {
+  argv_vals["--no-clobber"] = false
+}
+
+if (typeof argv_vals["--max-concurrency"] === 'number') {
+  if (argv_vals["--max-concurrency"] < 2) {
+    argv_vals["--max-concurrency"] = 1
+  }
+}
+
+if (typeof argv_vals["--min-bandwidth"] === 'number') {
+  if (argv_vals["--min-bandwidth"] < 0) {
+    argv_vals["--min-bandwidth"] = 0
+  }
+}
+
+if (typeof argv_vals["--max-bandwidth"] === 'number') {
+  if (argv_vals["--max-bandwidth"] < 0) {
+    argv_vals["--max-bandwidth"] = 0
+  }
+}
+
+if (argv_vals["--min-bandwidth"] && argv_vals["--max-bandwidth"]) {
+  if (argv_vals["--min-bandwidth"] > argv_vals["--max-bandwidth"]) {
+    argv_vals["--min-bandwidth"] = 0
+    argv_vals["--max-bandwidth"] = 0
+  }
+}
+
 if (!argv_vals["--directory-prefix"]) {
   argv_vals["--directory-prefix"] = process.cwd()
 }
@@ -116,30 +166,38 @@ if (argv_vals["--directory-prefix"]) {
         process.exit(0)
       }
       else {
-        fs.unlinkSync(childpath)
+        // special case
+        if ((child === "video.m3u8") && argv_vals["--continue"] && argv_vals["--skip-video"]) {
+          // noop
+        }
+        else {
+          fs.unlinkSync(childpath)
+        }
       }
     }
   })
 
   // directories
-  ;["audio","video","subtitles"].forEach(child => {
-    let childpath = path.join(argv_vals["--directory-prefix"], child)
-    if (fs.existsSync(childpath)) {
-      if (argv_vals["--no-clobber"]) {
-        console.log('ERROR: Output directory already exists @', childpath)
-        process.exit(0)
-      }
-      else {
-        try {
-          fs.rmdirSync(childpath)
-        }
-        catch(e){
-          console.log('ERROR: Unable to delete a non-empty output directory that already exists @', childpath)
+  if (!argv_vals["--continue"]) {
+    ;["audio","video","subtitles"].forEach(child => {
+      let childpath = path.join(argv_vals["--directory-prefix"], child)
+      if (fs.existsSync(childpath)) {
+        if (argv_vals["--no-clobber"]) {
+          console.log('ERROR: Output directory already exists @', childpath)
           process.exit(0)
         }
+        else {
+          try {
+            fs.rmdirSync(childpath)
+          }
+          catch(e){
+            console.log('ERROR: Unable to delete a non-empty output directory that already exists @', childpath)
+            process.exit(0)
+          }
+        }
       }
-    }
-  })
+    })
+  }
 }
 
 if (argv_vals["--mp4"]) {
@@ -161,14 +219,6 @@ if (argv_vals["--mp4"]) {
       fs.unlinkSync(argv_vals["--mp4"])
     }
   }
-}
-
-if (argv_vals["--filter-audio"]) {
-  argv_vals["--filter-audio"] = argv_vals["--filter-audio"].toLowerCase()
-}
-
-if (argv_vals["--filter-subtitles"]) {
-  argv_vals["--filter-subtitles"] = argv_vals["--filter-subtitles"].toLowerCase()
 }
 
 module.exports = argv_vals

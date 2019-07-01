@@ -28,6 +28,15 @@ const retrieve_flag_value = function(flag_opts, args, index, throw_error_if_valu
         }
       }
 
+      if (flag_opts && flag_opts["regex"]) {
+        val = new RegExp(
+          val,
+          (typeof flag_opts["regex"] === "string")
+            ? flag_opts["regex"]
+            : ""
+        )
+      }
+
       if (flag_opts && Array.isArray(flag_opts["enum"])) {
         if (flag_opts["enum"].indexOf(val) === -1) val = ""
       }
