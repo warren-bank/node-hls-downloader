@@ -61,8 +61,8 @@ options:
 "--version"
     Display the version.
 
-"-u <URL>"
-"--url <URL>"
+"-u" <URL>
+"--url" <URL>
     Specify the URL of master manifest.
 
 "-nc"
@@ -82,8 +82,8 @@ options:
     Specify the maximum number of URLs to download in parallel.
     The default is 1, which processes the download queue sequentially.
 
-"-P <dirpath>"
-"--directory-prefix <dirpath>"
+"-P" <dirpath>
+"--directory-prefix" <dirpath>
     Specifies the directory where the resulting file structure will be saved to.
     The default is "." (the current directory).
 
@@ -132,7 +132,7 @@ options:
 "--filter-subtitles" <regex>
     Download all subtitle streams in the group ID associated with the chosen video stream, having a name that matches this case-insensitive regular expression pattern.
 
-"--mp4 <filepath>"
+"--mp4" <filepath>
     Indicates that "ffmpeg" should be used to bundle the downloaded video stream into an .mp4 file container.
     Specifies where the resulting .mp4 file will be saved.
     Does not modify audio/video encoding.
