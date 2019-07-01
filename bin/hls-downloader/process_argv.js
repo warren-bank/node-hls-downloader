@@ -36,22 +36,22 @@ const argv_flag_aliases = {
   "--no-clobber":             ["-nc"],
   "--continue":               ["-c"],
   "--url":                    ["-u"],
-  "--max-concurrency":        ["--mc", "--threads"],
+  "--max-concurrency":        ["-mc", "--threads"],
   "--directory-prefix":       ["-P"],
 
   "--skip-video":             ["-sv"],
   "--skip-audio":             ["-sa"],
   "--skip-subtitles":         ["-ss"],
 
-  "--min-bandwidth":          ["--minb"],
-  "--max-bandwidth":          ["--maxb"],
+  "--min-bandwidth":          ["-minb"],
+  "--max-bandwidth":          ["-maxb"],
   "--highest-quality":        ["-hq"],
   "--lowest-quality":         ["-lq"],
 
   "--all-audio":              ["-aa"],
   "--all-subtitles":          ["-as"],
-  "--filter-audio":           ["--fa"],
-  "--filter-subtitles":       ["--fs"]
+  "--filter-audio":           ["-fa"],
+  "--filter-subtitles":       ["-fs"]
 }
 
 const get_merged_argv_flags = function(){

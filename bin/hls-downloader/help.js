@@ -28,7 +28,7 @@ options:
    Rather, reuse the existing directories and leave file contents unaltered.
    Run a check before each download, and skip if the data file already exists in the output directory.
 
-"--mc" <integer>
+"-mc" <integer>
 "--max-concurrency" <integer>
 "--threads" <integer>
     Specify the maximum number of URLs to download in parallel.
@@ -54,11 +54,11 @@ options:
     Skip processing of all matching subtitles manifests.
     Do not download subtitles data segments, or save local subtitles manifest(s).
 
-"--minb" <integer>
+"-minb" <integer>
 "--min-bandwidth" <integer>
     Exclude video streams having a bandwidth less than this value.
 
-"--maxb" <integer>
+"-maxb" <integer>
 "--max-bandwidth" <integer>
     Exclude video streams having a bandwidth greater than this value.
 
@@ -72,15 +72,19 @@ options:
     Download the lowest quality video stream without any user interaction.
     Does not include video streams filtered by min/max bandwidth restrictions.
 
+"-aa"
 "--all-audio"
     Download all audio streams in the group ID associated with the chosen video stream.
 
+"-as"
 "--all-subtitles"
     Download all subtitle streams in the group ID associated with the chosen video stream.
 
+"-fa" <regex>
 "--filter-audio" <regex>
     Download all audio streams in the group ID associated with the chosen video stream, having a name that matches this case-insensitive regular expression pattern.
 
+"-fs" <regex>
 "--filter-subtitles" <regex>
     Download all subtitle streams in the group ID associated with the chosen video stream, having a name that matches this case-insensitive regular expression pattern.
 

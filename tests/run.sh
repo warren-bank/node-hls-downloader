@@ -27,7 +27,7 @@ mkdir "${wrk_dir}"
 mkdir "${wrk_dir}/1. hls"
 mkdir "${wrk_dir}/2. mp4"
 
-hlsdl --mc 5 --url "$hls_url" -P "${wrk_dir}/1. hls" --mp4 "${wrk_dir}/2. mp4/video.mp4"
+hlsdl -mc 5 --url "$hls_url" -P "${wrk_dir}/1. hls" --mp4 "${wrk_dir}/2. mp4/video.mp4"
 
 # ------------------------------------------------------------------------------
 
@@ -43,6 +43,6 @@ mkdir "${wrk_dir}"
 mkdir "${wrk_dir}/1. hls"
 mkdir "${wrk_dir}/2. mp4"
 
-hlsdl --mc 5 --url "$hls_url" -P "${wrk_dir}/1. hls" --mp4 "${wrk_dir}/2. mp4/video.mp4"
+hlsdl -mc 5 --url "$hls_url" -P "${wrk_dir}/1. hls" --mp4 "${wrk_dir}/2. mp4/video.mp4"
 
 # ------------------------------------------------------------------------------
