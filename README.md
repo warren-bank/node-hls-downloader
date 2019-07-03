@@ -130,16 +130,19 @@ options:
 
 "-fa" <regex>
 "--filter-audio" <regex>
-    Download all audio streams in the group ID associated with the chosen video stream, having a name that matches this case-insensitive regular expression pattern.
+    Download all audio streams in the group ID associated with the chosen video stream,
+    having a name that matches this case-insensitive regular expression pattern.
 
 "-fs" <regex>
 "--filter-subtitles" <regex>
-    Download all subtitle streams in the group ID associated with the chosen video stream, having a name that matches this case-insensitive regular expression pattern.
+    Download all subtitle streams in the group ID associated with the chosen video stream,
+    having a name that matches this case-insensitive regular expression pattern.
 
 "--mp4" <filepath>
     Indicates that "ffmpeg" should be used to bundle the downloaded video stream into an .mp4 file container.
     Specifies where the resulting .mp4 file will be saved.
     Does not modify audio/video encoding.
+    Each subtitles stream is converted to an .srt file, and saved in the same directory as the .mp4 file.
 ```
 
 #### Example:

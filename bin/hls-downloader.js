@@ -9,6 +9,8 @@ const fs        = require('fs')
 const readline  = require('readline')
 const spawn     = require('child_process').exec
 
+let subtitle_names
+
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout
@@ -270,7 +272,7 @@ const resolve_relative_url = function(url, base_url){
   return parsed.href
 }
 
-const process_stream_manifest_data = function(manifest_data, base_url, ...sub_directory){
+const process_stream_manifest_data = function(manifest_data, base_url, file_ext, ...sub_directory){
   const no_result = Promise.resolve(null)
 
   if (!manifest_data) return no_result
@@ -291,14 +293,16 @@ const process_stream_manifest_data = function(manifest_data, base_url, ...sub_di
   let local_manifest = []
   const data_urls    = []
   const key_urls     = []
+  let data_url, data_name
   let key_url, key_name
 
   lines.forEach(line => {
     line = line.trim()
     if (line.length && (line[0] !== '#')) {
-      let data_url = resolve_relative_url(line, base_url)
-      data_urls.push(data_url)
-      local_manifest.push(get_local_path(data_url))
+      data_url = resolve_relative_url(line, base_url)
+      data_name = `segment_${data_urls.length}.${file_ext}`
+      data_urls.push({url: data_url, name: data_name})
+      local_manifest.push(get_local_path(data_name))
     }
     else {
       let match = key_pattern.exec(line)
@@ -333,7 +337,7 @@ const process_stream_manifest_data = function(manifest_data, base_url, ...sub_di
   let promise
 
   promise = download({
-    "--input-file":       data_urls,
+    "--input-file":       data_urls.map(obj => `${obj.url}\t${obj.name}`),
     "--directory-prefix": output_dir,
     "--no-clobber":       true,
     "--max-concurrency":  argv_vals["--max-concurrency"]
@@ -359,15 +363,15 @@ const process_stream_manifest_data = function(manifest_data, base_url, ...sub_di
 }
 
 const process_video_stream_data = function(video_manifest_data, base_url){
-  return process_stream_manifest_data(video_manifest_data, base_url, "video")
+  return process_stream_manifest_data(video_manifest_data, base_url, "ts", "video")
 }
 
 const process_audio_stream_data = function(audio_manifest_data, base_url, name){
-  return process_stream_manifest_data(audio_manifest_data, base_url, "audio", name)
+  return process_stream_manifest_data(audio_manifest_data, base_url, "aac", "audio", name)
 }
 
 const process_subtitle_stream_data = function(subtitle_manifest_data, base_url, name){
-  return process_stream_manifest_data(subtitle_manifest_data, base_url, "subtitles", name)
+  return process_stream_manifest_data(subtitle_manifest_data, base_url, "vtt", "subtitles", name)
 }
 
 const save_local_master_manifest = function(stream, audio_streams, subtitle_streams){
@@ -428,6 +432,10 @@ const process_stream = async function(stream, manifest, base_url){
   await get_subtitle_streams(stream, manifest, base_url)
   .then(streams => {
     subtitle_streams = streams
+
+    if (Array.isArray(streams)) {
+      subtitle_names = streams.map(stream => stream.name)
+    }
   })
 
   // ===================================
@@ -496,6 +504,9 @@ const run_main = async function(){
       // process manifest as a video stream
 
       await process_video_stream_data(manifest, argv_vals["--url"])
+
+      console.log("done")
+      console.log("")
     }
     else {
       // all video streams in the master manifest have been filtered by min/max bandwidth restrictions
@@ -532,6 +543,13 @@ const run_main = async function(){
 }
 
 const run_ffmpeg = function(){
+  return run_ffmpeg_conversion_video()
+  .then(() => {
+    return run_ffmpeg_conversion_subtitles()
+  })
+}
+
+const run_ffmpeg_conversion_video = function(){
   return new Promise((resolve, reject) => {
     if (!argv_vals["--mp4"]) {
       resolve()
@@ -550,8 +568,8 @@ const run_ffmpeg = function(){
 
     console.log("starting ffmpeg conversion of HLS stream to mp4 file..")
 
-    let cmd = `ffmpeg -allowed_extensions ALL -i "${manifest}" -c copy -movflags +faststart "${argv_vals["--mp4"]}"`
-    let opt = {cwd: argv_vals["--directory-prefix"]}
+    const cmd = `ffmpeg -allowed_extensions ALL -i "${manifest}" -c copy -movflags +faststart "${argv_vals["--mp4"]}"`
+    const opt = {cwd: argv_vals["--directory-prefix"]}
     spawn(cmd, opt, (error, stdout, stderr) => {
       if (error) {
         console.log("ffmpeg error:")
@@ -564,6 +582,57 @@ const run_ffmpeg = function(){
 
         resolve()
       }
+    })
+  })
+}
+
+const run_ffmpeg_conversion_subtitles = async function(){
+  if (!argv_vals["--mp4"]) return
+
+  if (!Array.isArray(subtitle_names)) return
+
+  while (subtitle_names.length) {
+    await run_ffmpeg_conversion_srt()
+  }
+}
+
+const run_ffmpeg_conversion_srt = function(){
+  return new Promise((resolve, reject) => {
+    if (!argv_vals["--mp4"]) {
+      resolve()
+      return
+    }
+
+    if (!Array.isArray(subtitle_names)) {
+      resolve()
+      return
+    }
+
+    const subtitle_dir = path.join(argv_vals["--directory-prefix"], 'subtitles')
+    const lang         = subtitle_names.shift()
+    const manifest     = path.join(subtitle_dir, `${lang}.m3u8`)
+    const srt_file     = argv_vals["--mp4"].replace(/(?:\.mp4)?$/i, `.${lang}.srt`)
+
+    if (! fs.existsSync(manifest)) {
+      resolve()
+      return
+    }
+
+    console.log(`starting ffmpeg conversion of '${lang}' WebVTT subtitle stream to srt file..`)
+
+    const cmd = `ffmpeg -allowed_extensions ALL -i "${manifest}" -codec:s text "${srt_file}"`
+    const opt = {cwd: subtitle_dir}
+    spawn(cmd, opt, (error, stdout, stderr) => {
+      if (error) {
+        console.log("ffmpeg error:")
+        console.log(error)
+        console.log("")
+      }
+      else {
+        console.log("done")
+        console.log("")
+      }
+      resolve()
     })
   })
 }
