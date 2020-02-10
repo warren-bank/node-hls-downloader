@@ -151,7 +151,7 @@ options:
 
 #### Requirements:
 
-* Node version: v6.4.0 (and higher)
+* Node version: v6.13.0 (and higher)
   * [ES6 support](http://node.green/)
     * v0.12.18+: Promise
     * v4.08.03+: Object shorthand methods
@@ -159,6 +159,8 @@ options:
     * v6.04.00+: Proxy constructor
     * v6.04.00+: Proxy 'apply' handler
     * v6.04.00+: Reflect.apply
+  * [URL](https://nodejs.org/api/url.html)
+    * v6.13.00+: [Browser-compatible URL class](https://nodejs.org/api/url.html#url_class_url)
   * tested in:
     * v7.9.0
 * FFmpeg

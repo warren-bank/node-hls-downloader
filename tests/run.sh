@@ -68,6 +68,9 @@ mkdir "${wrk_dir}"
 mkdir "${wrk_dir}/1. hls"
 mkdir "${wrk_dir}/2. mp4"
 
+# workaround for TLS error: "certificate has expired"
+NODE_TLS_REJECT_UNAUTHORIZED=0 && \
+
 hlsdl -hq -fa '^english$' -as -mc 5 --url "$hls_url" -P "${wrk_dir}/1. hls" --mp4 "${wrk_dir}/2. mp4/video.mp4"
 
 # ------------------------------------------------------------------------------
