@@ -1,4 +1,4 @@
-const grep_argv = require('./grep_argv')
+const process_argv = require('@warren-bank/node-process-argv')
 
 const path = require('path')
 const fs   = require('fs')
@@ -54,54 +54,14 @@ const argv_flag_aliases = {
   "--filter-subtitles":       ["-fs"]
 }
 
-const get_merged_argv_flags = function(){
-  let argv_flags_merged = {...argv_flags}
-  let key, flag_opts, aliases, alias
+let argv_vals = {}
 
-  for (key in argv_flag_aliases){
-    flag_opts = argv_flags[key]
-    aliases   = argv_flag_aliases[key]
-
-    if ((flag_opts instanceof Object) && (Array.isArray(aliases))){
-      for (alias of aliases){
-        argv_flags_merged[alias] = flag_opts
-      }
-    }
-  }
-
-  return argv_flags_merged
-}
-
-const normalize_argv_vals = function(){
-  if (!(argv_vals instanceof Object)) return
-
-  let key, argv_val, aliases, alias
-
-  for (key in argv_flag_aliases){
-    argv_val = argv_vals[key]
-    aliases  = argv_flag_aliases[key]
-
-    if ((!argv_val) && (Array.isArray(aliases))){
-      for (alias of aliases){
-        argv_val = argv_vals[alias]
-        if (argv_val) {
-          argv_vals[key] = argv_val
-          break
-        }
-      }
-    }
-  }
-}
-
-let argv_vals
 try {
-  argv_vals = grep_argv(get_merged_argv_flags(), true)
-
-  normalize_argv_vals()
+  argv_vals = process_argv(argv_flags, argv_flag_aliases)
 }
 catch(e) {
   console.log('ERROR: ' + e.message)
-  process.exit(0)
+  process.exit(1)
 }
 
 if (argv_vals["--help"]) {
