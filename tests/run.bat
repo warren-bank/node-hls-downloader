@@ -75,5 +75,27 @@ call hlsdl -hq -fa "^english$" -as -mc 5 --url %hls_url% -P "%wrk_dir%\1. hls" -
 
 rem :: -------------------------------------------------------------------------
 
+rem :: =================================
+rem :: master manifest w/
+rem :: - several bitrates
+rem :: - no encryption
+rem :: - no audio streams
+rem :: - 12x subtitles streams (total)
+rem :: -  6x subtitles streams (unique)
+rem :: =================================
+rem :: https://roosterteeth.com/watch/rwby-volume-6-1
+rem :: https://svod-be.roosterteeth.com/api/v1/watch/rwby-volume-6-1/videos
+rem :: =================================
+set hls_url="https://svod-be.roosterteeth.com/api/v1/videos/4cde6796-0a42-4b57-bb3c-dc520042b539/master.m3u8"
+set wrk_dir=%workspace%\4
+
+mkdir "%wrk_dir%"
+mkdir "%wrk_dir%\1. hls"
+mkdir "%wrk_dir%\2. mp4"
+
+call hlsdl -hq -sv -sa -as -mc 5 --url %hls_url% -P "%wrk_dir%\1. hls" --mp4 "%wrk_dir%\2. mp4\video.mp4"
+
+rem :: -------------------------------------------------------------------------
+
 echo.
 pause

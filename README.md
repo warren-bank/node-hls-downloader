@@ -27,13 +27,13 @@ npm install --global @warren-bank/node-hls-downloader
     |- video/
     |  |- *.ts
     |- audio/
-    |  |- {name}/
+    |  |- {language}/
     |  |  |- *.ts
-    |  |- {name}.m3u8
+    |  |- {language}.m3u8
     |- subtitles/
-    |  |- {name}/
+    |  |- {language}/
     |  |  |- *.vtt
-    |  |- {name}.m3u8
+    |  |- {language}.m3u8
     |- video.m3u8
     |- master.m3u8
   ```
@@ -154,6 +154,7 @@ options:
 * Node version: v6.13.0 (and higher)
   * [ES6 support](http://node.green/)
     * v0.12.18+: Promise
+    * v0.12.18+: Set
     * v4.08.03+: Object shorthand methods
     * v5.12.00+: spread operator
     * v6.04.00+: Proxy constructor
