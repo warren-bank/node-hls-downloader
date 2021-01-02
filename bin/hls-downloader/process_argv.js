@@ -6,6 +6,7 @@ const fs   = require('fs')
 const argv_flags = {
   "--help":                   {bool:  true},
   "--version":                {bool:  true},
+  "--no-check-certificate":   {bool:  true},
   "--no-clobber":             {bool:  true},
   "--continue":               {bool:  true},
 
@@ -33,6 +34,7 @@ const argv_flags = {
 const argv_flag_aliases = {
   "--help":                   ["-h"],
   "--version":                ["-V"],
+  "--no-check-certificate":   ["-ncc"],
   "--no-clobber":             ["-nc"],
   "--continue":               ["-c"],
   "--url":                    ["-u"],
@@ -74,6 +76,16 @@ if (argv_vals["--version"]) {
   const data = require('../../package.json')
   console.log(data.version)
   process.exit(0)
+}
+
+// =============================================================================
+// references:
+// =============================================================================
+//   https://nodejs.org/api/cli.html#cli_environment_variables
+//   https://nodejs.org/api/cli.html#cli_node_tls_reject_unauthorized_value
+// =============================================================================
+if (argv_vals["--no-check-certificate"]) {
+  process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0
 }
 
 if (argv_vals["--continue"]) {

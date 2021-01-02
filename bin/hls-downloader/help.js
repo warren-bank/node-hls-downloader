@@ -17,6 +17,10 @@ options:
 "--url" <URL>
     Specify the URL of master manifest.
 
+"-ncc"
+"--no-check-certificate"
+    Do not check HTTPS TLS/SSL certificates.
+
 "-nc"
 "--no-clobber"
     Do not allow output to overwrite existing data.
