@@ -99,6 +99,9 @@ options:
     Specifies where the resulting .mp4 file will be saved.
     Does not modify audio/video encoding.
     Each subtitles stream is converted to an .srt file, and saved in the same directory as the .mp4 file.
+
+"--mp4-ffmpeg-options" <options>
+    Any additional options that should be passed to "ffmpeg" when used to bundle an .mp4 file container.
 `
 
 module.exports = help

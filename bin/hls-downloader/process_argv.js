@@ -15,6 +15,7 @@ const argv_flags = {
 
   "--directory-prefix":       {},
   "--mp4":                    {},
+  "--mp4-ffmpeg-options":     {},
 
   "--skip-video":             {bool:  true},
   "--skip-audio":             {bool:  true},
